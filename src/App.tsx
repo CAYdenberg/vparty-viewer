@@ -1,7 +1,12 @@
 import React from 'react';
 import { IconChevronRight } from './icons';
+import { useChartData } from './store';
 
 export const App: React.FC = () => {
+  const { state, dispatch } = useChartData();
+
+  console.log(state);
+
   return (
     <div className="container">
       <div className="level is-center mt-4 mb-4">
