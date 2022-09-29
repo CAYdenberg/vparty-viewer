@@ -1,11 +1,15 @@
 import React from 'react';
-import { IconChevronRight } from './icons';
+import { MainChart } from './MainChart';
+import { Menu } from './Menu/Menu';
 import { useChartData } from './store';
+import { getChartData, getMenuData } from './store/selectors';
 
 export const App: React.FC = () => {
   const { state, dispatch } = useChartData();
-
   console.log(state);
+
+  const chartData = getChartData('v2xpa_popul')(state);
+  const menuData = getMenuData(state);
 
   return (
     <div className="container">
@@ -55,47 +59,11 @@ export const App: React.FC = () => {
             </div>
           </form>
 
-          <div className="menu">
-            <ul className="menu-list">
-              <li>
-                <a>
-                  <i className="icon">
-                    <IconChevronRight />
-                  </i>
-                  Canada
-                </a>
-                <ul>
-                  <li>
-                    <a>New Democratic Party</a>
-                  </li>
-                  <li>
-                    <a>Conservative Party of Canada</a>
-                  </li>
-                  <li>
-                    <a>Liberal Party</a>
-                  </li>
-                  <li>
-                    <a>Green Party of Canada</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a>United States of America</a>
-                <ul>
-                  <li>
-                    <a>Democratic Party</a>
-                  </li>
-                  <li>
-                    <a>Republican Party</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
+          <Menu menuData={menuData} />
         </aside>
 
         <main className="column">
-          <div className="level has-text-right">
+          <div className="level">
             <form>
               <div className="select">
                 <select>
@@ -103,6 +71,9 @@ export const App: React.FC = () => {
                 </select>
               </div>
             </form>
+          </div>
+          <div>
+            <MainChart chartData={chartData} />
           </div>
         </main>
       </div>

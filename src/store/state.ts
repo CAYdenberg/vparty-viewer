@@ -1,6 +1,6 @@
 export const BELIEF_KEYS = {
-  v2xpa_antiplural: 'Anti-Pluralism Index',
   v2xpa_popul: 'Populism Index',
+  v2xpa_antiplural: 'Anti-Pluralism Index',
   v2paanteli: 'Anti-elitism',
   v2papeople: 'People-centrism',
   v2paopresp: 'Political opponents',
@@ -17,7 +17,7 @@ export const BELIEF_KEYS = {
   v2pawelf: 'Welfare',
 };
 
-type BeliefKeyT = typeof BELIEF_KEYS;
+export type BeliefKeyT = typeof BELIEF_KEYS;
 
 type Beliefs = {
   [property in keyof BeliefKeyT]: {
@@ -39,7 +39,7 @@ export interface State {
   data: Array<{
     id: string;
     label: string;
-    elections: Array<{
+    parties: Array<{
       id: string;
       label: string;
       elections: Array<PartyElection>;
