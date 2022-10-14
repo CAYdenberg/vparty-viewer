@@ -36,6 +36,8 @@ interface PartyElection extends Beliefs {
 export interface State {
   initialDataLoad: number | 'loading' | 'error';
 
+  apiLoad: Record<string, number | 'loading' | 'error'>;
+
   data: Array<{
     id: string;
     label: string;
@@ -57,10 +59,22 @@ export interface State {
     id: string;
     label: string;
   }>;
+
+  ux: {
+    collapsedCountries: string[];
+    highlighed: string[];
+    yAxis: keyof BeliefKeyT;
+  };
 }
 
 export const getInitialState = (): State => ({
   initialDataLoad: 'loading',
+  apiLoad: {},
   data: [],
   countries: [],
+  ux: {
+    collapsedCountries: [],
+    highlighed: [],
+    yAxis: 'v2xpa_popul',
+  },
 });

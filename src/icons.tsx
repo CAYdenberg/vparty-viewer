@@ -1,7 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 
 // icon:chevron-right | Bootstrap https://icons.getbootstrap.com/ | Bootstrap
-export function IconChevronRight(props: React.SVGProps<SVGSVGElement>) {
+export const IconChevronRight = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg
       fill="currentColor"
@@ -16,4 +16,4 @@ export function IconChevronRight(props: React.SVGProps<SVGSVGElement>) {
       />
     </svg>
   );
-}
+};
