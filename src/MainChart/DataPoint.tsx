@@ -1,4 +1,4 @@
-import { Handle, LineSeries, Symbol } from 'hypocube';
+import { Handle, LineSeries, Symbol, Text } from 'hypocube';
 import React from 'react';
 import { PartyDataPoint } from '../store/selectors';
 import tinycolor from 'tinycolor2';
@@ -16,6 +16,22 @@ const fade = (baseColor: string) => {
 export const DataPoint: React.FC<Props> = ({ point, isFaded, showHistory }) => {
   const color = isFaded ? fade(point.baseColor) : point.baseColor;
 
+  const historyLabels = (() => {
+    if (!showHistory) {
+      return [];
+    }
+    return point.history.map(({ compoundKey, position }, i) => {
+      const date = compoundKey.split(':')[2];
+      const year = date.split('-')[0];
+      const visible = !!year && (i === 0 || i === point.history.length - 1);
+      return {
+        label: visible ? year : '',
+        position: position,
+        key: compoundKey,
+      };
+    });
+  })();
+
   return (
     <React.Fragment key={point.compoundKey}>
       <Handle onPointerDown={() => console.log(point.compoundKey)}>
@@ -26,6 +42,24 @@ export const DataPoint: React.FC<Props> = ({ point, isFaded, showHistory }) => {
           size={point.voteShare * 5}
         />
       </Handle>
+      {showHistory && (
+        <React.Fragment>
+          <LineSeries
+            data={point.history.map((point) => point.position)}
+            chartStyle={{
+              dataLineStroke: point.baseColor,
+              dataLineStrokeWidth: 2,
+            }}
+          />
+          {historyLabels.map((point) => (
+            <Text
+              key={point.key}
+              position={point.position}
+              text={point.label}
+            />
+          ))}
+        </React.Fragment>
+      )}
     </React.Fragment>
   );
 };

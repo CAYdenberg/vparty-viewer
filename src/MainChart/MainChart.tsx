@@ -32,6 +32,10 @@ export const MainChart: React.FC<Props> = ({ chartData, highlighted }) => {
     return true;
   };
 
+  const showHistory = (compoundKey: string) => {
+    return highlighted.includes(compoundKey);
+  };
+
   return (
     <Chart
       // isCanvas={true}
@@ -51,7 +55,7 @@ export const MainChart: React.FC<Props> = ({ chartData, highlighted }) => {
           key={point.compoundKey}
           point={point}
           isFaded={isFaded(point.compoundKey)}
-          showHistory={false}
+          showHistory={showHistory(point.compoundKey)}
         />
       ))}
     </Chart>
