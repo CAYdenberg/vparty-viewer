@@ -20,3 +20,38 @@ export const initialDataError =
       initialDataLoad: { $set: status || 'error' },
     });
   };
+
+export const toggleCountry =
+  (country: string): Action =>
+  (init) => {
+    return update(init, {
+      ux: {
+        collapsedCountries: (val) => {
+          const exists = val.includes(country);
+          return exists
+            ? val.filter((item) => item !== country)
+            : val.concat(country);
+        },
+      },
+    });
+  };
+
+export const highlight =
+  (key: string): Action =>
+  (init) => {
+    return update(init, {
+      ux: {
+        highlighted: (val) => val.concat(key),
+      },
+    });
+  };
+
+export const unhighlight =
+  (key?: string): Action =>
+  (init) => {
+    return update(init, {
+      ux: {
+        highlighted: (val) => (key ? val.filter((item) => item !== key) : []),
+      },
+    });
+  };

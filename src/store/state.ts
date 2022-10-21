@@ -62,7 +62,7 @@ export interface State {
 
   ux: {
     collapsedCountries: string[];
-    highlighed: string[];
+    highlighted: string[];
     yAxis: keyof BeliefKeyT;
   };
 }
@@ -74,7 +74,7 @@ export const getInitialState = (): State => ({
   countries: [],
   ux: {
     collapsedCountries: [],
-    highlighed: [],
+    highlighted: [],
     yAxis: 'v2xpa_popul',
   },
 });

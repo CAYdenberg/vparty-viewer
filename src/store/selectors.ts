@@ -1,9 +1,11 @@
+import { COMMON_PARTY_COLORS } from '../config';
 import { BeliefKeyT, State } from './state';
 
 export interface PartyDataPoint {
   compoundKey: string;
   position: [number, number];
   voteShare: number;
+  baseColor: string;
   history: Array<{
     compoundKey: string;
     voteShare: number;
@@ -15,6 +17,10 @@ export const getChartData =
   (yAxis: keyof BeliefKeyT) =>
   (state: State): PartyDataPoint[] => {
     return state.data.reduce((acc, country) => {
+      if (state.ux.collapsedCountries.includes(country.id)) {
+        return acc;
+      }
+
       const lastElection = country.lastElection.date;
       const extantParties = country.lastElection.voteShare
         .map((party) => {
@@ -40,7 +46,15 @@ export const getChartData =
             position: [e.v2pariglef.value, e[yAxis].value] as [number, number],
           }));
 
-          return { compoundKey, position, history, voteShare: party.voteShare };
+          const baseColor = COMMON_PARTY_COLORS[compoundKey] || '#333';
+
+          return {
+            compoundKey,
+            position,
+            history,
+            voteShare: party.voteShare,
+            baseColor,
+          };
         })
         .filter(Boolean) as PartyDataPoint[];
 
@@ -51,6 +65,7 @@ export const getChartData =
 export interface MenuCountryItem {
   label: string;
   key: string;
+  isOpen: boolean;
   parties: Array<{
     key: string;
     label: string;
@@ -61,6 +76,7 @@ export const getMenuData = (state: State) => {
   return state.data.map((country) => ({
     label: country.label,
     key: country.id,
+    isOpen: !state.ux.collapsedCountries.includes(country.id),
     parties: country.parties.map((party) => ({
       key: `${country.id}:${party.id}`,
       label: party.label,

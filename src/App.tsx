@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { MainChart } from './MainChart';
 import { Menu } from './Menu/Menu';
-import { useChartData } from './store';
-import { getChartData, getMenuData } from './store/selectors';
+import { useChartData, selectors as s, actions as a } from './store';
 
 export const App: React.FC = () => {
   const { state, dispatch } = useChartData();
   console.log(state);
 
-  const chartData = getChartData('v2xpa_popul')(state);
-  const menuData = getMenuData(state);
+  const chartData = s.getChartData('v2xpa_popul')(state);
+  const menuData = s.getMenuData(state);
+
+  const toggleCountry = (country: string) => dispatch(a.toggleCountry(country));
+  const highlight = (key: string) => dispatch(a.highlight(key));
+  const unhighlight = (key: string) => dispatch(a.unhighlight(key));
 
   return (
     <div className="container">
@@ -59,7 +62,12 @@ export const App: React.FC = () => {
             </div>
           </form>
 
-          <Menu menuData={menuData} />
+          <Menu
+            menuData={menuData}
+            toggleCountry={toggleCountry}
+            highlight={highlight}
+            unhighlight={unhighlight}
+          />
         </aside>
 
         <main className="column">
@@ -73,7 +81,10 @@ export const App: React.FC = () => {
             </form>
           </div>
           <div>
-            <MainChart chartData={chartData} />
+            <MainChart
+              chartData={chartData}
+              highlighted={state.ux.highlighted}
+            />
           </div>
         </main>
       </div>
