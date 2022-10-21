@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { API_BASE_URL, API_KEY } from '../config';
 import { initialDataError, initialDataOk } from './actions';
 import { getInitialState, State } from './state';
+import * as actions from './actions';
 
 export type Action = (state: State) => State;
 
@@ -15,10 +16,32 @@ export const useChartData = () => {
     setState(action);
   }, []);
 
-  const request = (endpoint: string) => {
-    return;
-  };
+  const request = useCallback(
+    (endpoint: string) => {
+      dispatch(actions.reqStart(endpoint));
 
+      axios({
+        method: 'GET',
+        url: `${API_BASE_URL}/${endpoint}`,
+        headers: {
+          'ACCESS-KEY': API_KEY,
+        },
+      })
+        .then((res) => {
+          if (res.status >= 400) {
+            dispatch(actions.reqError(endpoint, res.status));
+            return;
+          }
+          dispatch(actions.reqOk(endpoint, res.data));
+        })
+        .catch(() => {
+          dispatch(initialDataError());
+        });
+    },
+    [dispatch],
+  );
+
+  // bootstrap effect. Run once no matter what.
   useEffect(() => {
     axios({
       method: 'GET',
@@ -37,6 +60,7 @@ export const useChartData = () => {
       .catch(() => {
         dispatch(initialDataError());
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

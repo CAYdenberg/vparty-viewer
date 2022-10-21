@@ -10,6 +10,13 @@ export const initialDataOk =
       initialDataLoad: { $set: 200 },
       data: { $push: [CAN, USA, GBR] },
       countries: { $set: COUNTRIES },
+      apiLoad: {
+        $set: {
+          CAN: 200,
+          USA: 200,
+          GBR: 200,
+        },
+      },
     });
   };
 
@@ -18,6 +25,40 @@ export const initialDataError =
   (init) => {
     return update(init, {
       initialDataLoad: { $set: status || 'error' },
+    });
+  };
+
+export const reqStart =
+  (id: string): Action =>
+  (init) => {
+    return update(init, {
+      apiLoad: (val) => ({
+        ...val,
+        [id]: 'loading',
+      }),
+    });
+  };
+
+export const reqOk =
+  (id: string, data: any): Action =>
+  (init) => {
+    return update(init, {
+      apiLoad: (val) => ({
+        ...val,
+        [id]: 200,
+      }),
+      data: (val) => [data, ...val],
+    });
+  };
+
+export const reqError =
+  (id: string, status?: number): Action =>
+  (init) => {
+    return update(init, {
+      apiLoad: (val) => ({
+        ...val,
+        [id]: status || 'error',
+      }),
     });
   };
 

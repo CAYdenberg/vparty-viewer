@@ -72,7 +72,7 @@ export interface MenuCountryItem {
   }>;
 }
 
-export const getMenuData = (state: State) => {
+export const getMenuData = (state: State): MenuCountryItem[] => {
   return state.data.map((country) => ({
     label: country.label,
     key: country.id,
@@ -82,4 +82,11 @@ export const getMenuData = (state: State) => {
       label: party.label,
     })),
   }));
+};
+
+export const isLoading = (state: State): boolean => {
+  return (
+    state.initialDataLoad === 'loading' ||
+    !!Object.keys(state.apiLoad).find((key) => state.apiLoad[key] === 'loading')
+  );
 };

@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
+import { AddCountryForm } from './AddCountryForm';
 import { MainChart } from './MainChart';
 import { Menu } from './Menu/Menu';
 import { useChartData, selectors as s, actions as a } from './store';
 
 export const App: React.FC = () => {
-  const { state, dispatch } = useChartData();
+  const { state, dispatch, request } = useChartData();
   console.log(state);
 
   const chartData = s.getChartData('v2xpa_popul')(state);
@@ -47,20 +48,11 @@ export const App: React.FC = () => {
 
       <div className="columns mt-4">
         <aside className="column is-4">
-          <form className="mb-3">
-            <div className="field has-addons">
-              <div className="control is-expanded">
-                <input
-                  className="input"
-                  type="text"
-                  placeholder="Add a country"
-                />
-              </div>
-              <div className="control">
-                <a className="button is-info">Add</a>
-              </div>
-            </div>
-          </form>
+          <AddCountryForm
+            countries={state.countries}
+            handleAddCountry={request}
+            isLoading={s.isLoading(state)}
+          />
 
           <Menu
             menuData={menuData}
