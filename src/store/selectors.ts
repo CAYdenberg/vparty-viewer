@@ -1,17 +1,14 @@
-import { COMMON_PARTY_COLORS } from '../config';
+import { COMMON_PARTY_COLORS, VOTE_SHARE_MIN } from '../config';
 import { BeliefKeyT, State } from './state';
 import { random as randomColor } from 'tinycolor2';
+import { YAxis } from 'hypocube';
 
-export interface PartyDataPoint {
+export interface PlanarDataPoint {
   compoundKey: string;
+  partyName: string;
   position: [number, number];
   voteShare: number;
   baseColor: string;
-  history: Array<{
-    compoundKey: string;
-    voteShare: number;
-    position: [number, number];
-  }>;
 }
 
 class ColorCache {
@@ -26,15 +23,15 @@ class ColorCache {
       return this.colors[id];
     }
 
-    this.colors[id] = randomColor().toHslString();
+    this.colors[id] = COMMON_PARTY_COLORS[id] || randomColor().toHslString();
     return this.colors[id];
   }
 }
-const colorCache = new ColorCache();
+export const colorCache = new ColorCache();
 
-export const getChartData =
+export const getPlanarData =
   (yAxis: keyof BeliefKeyT) =>
-  (state: State): PartyDataPoint[] => {
+  (state: State): PlanarDataPoint[] => {
     return state.data.reduce((acc, country) => {
       if (state.ux.collapsedCountries.includes(country.id)) {
         return acc;
@@ -57,29 +54,38 @@ export const getChartData =
             currentPartyElection[yAxis].value,
           ] as [number, number];
 
-          // already would have returned if partyFullData is undefined
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const history = partyFullData!.elections.map((e) => ({
-            compoundKey: `${country.id}:${party.party}:${e.date}`,
-            voteShare: e.voteShare,
-            position: [e.v2pariglef.value, e[yAxis].value] as [number, number],
-          }));
-
-          const baseColor =
-            COMMON_PARTY_COLORS[compoundKey] || colorCache.get(compoundKey);
+          const baseColor = colorCache.get(compoundKey);
 
           return {
             compoundKey,
             position,
-            history,
+            partyName: partyFullData?.label,
             voteShare: party.voteShare,
             baseColor,
           };
         })
-        .filter(Boolean) as PartyDataPoint[];
+        .filter(Boolean) as PlanarDataPoint[];
 
       return acc.concat(extantParties);
-    }, [] as PartyDataPoint[]);
+    }, [] as PlanarDataPoint[]);
+  };
+
+export const getTimelineData =
+  (yAxis: keyof BeliefKeyT, compoundId?: string) => (state: State) => {
+    if (!compoundId) return null;
+
+    const [countryId, partyId] = compoundId.split(':');
+    if (!partyId) return null;
+
+    const country = state.data.find((country) => country.id === countryId);
+    if (!country) return null;
+
+    const party = country.parties.find((party) => party.id === partyId);
+    if (!party) return null;
+
+    return party.elections.map(
+      (election) => [election.date, election[yAxis].value] as [string, number],
+    );
   };
 
 export interface MenuCountryItem {
@@ -99,9 +105,10 @@ export const getMenuData = (state: State): MenuCountryItem[] => {
     isOpen: !state.ux.collapsedCountries.includes(country.id),
     parties: country.parties
       .filter((party) => {
-        return !!country.lastElection.voteShare.find(
+        const voteShare = country.lastElection.voteShare.find(
           (item) => item.party === party.id,
         );
+        return voteShare && voteShare.voteShare > VOTE_SHARE_MIN;
       })
       .map((party) => ({
         key: `${country.id}:${party.id}`,

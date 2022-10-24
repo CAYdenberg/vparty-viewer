@@ -82,17 +82,15 @@ export const highlight =
   (init) => {
     return update(init, {
       ux: {
-        highlighted: (val) => val.concat(key),
+        highlighted: { $set: key },
       },
     });
   };
 
-export const unhighlight =
-  (key?: string): Action =>
-  (init) => {
-    return update(init, {
-      ux: {
-        highlighted: (val) => (key ? val.filter((item) => item !== key) : []),
-      },
-    });
-  };
+export const unhighlight = (): Action => (init) => {
+  return update(init, {
+    ux: {
+      highlighted: { $set: '' },
+    },
+  });
+};

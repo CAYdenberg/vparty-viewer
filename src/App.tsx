@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { AddCountryForm } from './AddCountryForm';
 import { MainChart } from './MainChart';
 import { Menu } from './Menu/Menu';
@@ -8,12 +8,16 @@ export const App: React.FC = () => {
   const { state, dispatch, request } = useChartData();
   console.log(state);
 
-  const chartData = s.getChartData('v2xpa_popul')(state);
+  const chartData = s.getPlanarData('v2xpa_popul')(state);
+  const timeline = s.getTimelineData(
+    'v2xpa_popul',
+    state.ux.highlighted,
+  )(state);
   const menuData = s.getMenuData(state);
 
   const toggleCountry = (country: string) => dispatch(a.toggleCountry(country));
   const highlight = (key: string) => dispatch(a.highlight(key));
-  const unhighlight = (key: string) => dispatch(a.unhighlight(key));
+  const unhighlight = () => dispatch(a.unhighlight());
 
   return (
     <div className="container">
@@ -74,8 +78,9 @@ export const App: React.FC = () => {
           </div>
           <div>
             <MainChart
-              chartData={chartData}
+              planarData={chartData}
               highlighted={state.ux.highlighted}
+              timelineData={timeline || undefined}
             />
           </div>
         </main>
