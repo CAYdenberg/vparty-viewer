@@ -1,5 +1,6 @@
 import { COMMON_PARTY_COLORS } from '../config';
 import { BeliefKeyT, State } from './state';
+import { random as randomColor } from 'tinycolor2';
 
 export interface PartyDataPoint {
   compoundKey: string;
@@ -12,6 +13,24 @@ export interface PartyDataPoint {
     position: [number, number];
   }>;
 }
+
+class ColorCache {
+  private colors: Record<string, string>;
+
+  constructor() {
+    this.colors = {};
+  }
+
+  public get(id: string) {
+    if (this.colors[id]) {
+      return this.colors[id];
+    }
+
+    this.colors[id] = randomColor().toHslString();
+    return this.colors[id];
+  }
+}
+const colorCache = new ColorCache();
 
 export const getChartData =
   (yAxis: keyof BeliefKeyT) =>
@@ -46,7 +65,8 @@ export const getChartData =
             position: [e.v2pariglef.value, e[yAxis].value] as [number, number],
           }));
 
-          const baseColor = COMMON_PARTY_COLORS[compoundKey] || '#333';
+          const baseColor =
+            COMMON_PARTY_COLORS[compoundKey] || colorCache.get(compoundKey);
 
           return {
             compoundKey,
@@ -77,10 +97,16 @@ export const getMenuData = (state: State): MenuCountryItem[] => {
     label: country.label,
     key: country.id,
     isOpen: !state.ux.collapsedCountries.includes(country.id),
-    parties: country.parties.map((party) => ({
-      key: `${country.id}:${party.id}`,
-      label: party.label,
-    })),
+    parties: country.parties
+      .filter((party) => {
+        return !!country.lastElection.voteShare.find(
+          (item) => item.party === party.id,
+        );
+      })
+      .map((party) => ({
+        key: `${country.id}:${party.id}`,
+        label: party.label,
+      })),
   }));
 };
 
