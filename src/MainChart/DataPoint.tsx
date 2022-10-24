@@ -1,16 +1,12 @@
 import { Handle, Symbol } from 'hypocube';
 import React from 'react';
 import { PlanarDataPoint } from '../store/selectors';
-import tinycolor from 'tinycolor2';
+import { colorFade as fade } from './utils';
 
 interface Props {
   point: PlanarDataPoint;
   isFaded: boolean;
 }
-
-const fade = (baseColor: string) => {
-  return tinycolor(baseColor).desaturate(80).setAlpha(0.2).toHslString();
-};
 
 export const DataPoint: React.FC<Props> = ({ point, isFaded }) => {
   const color = isFaded ? fade(point.baseColor) : point.baseColor;

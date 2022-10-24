@@ -1,0 +1,11 @@
+.chart-label {
+  user-select: none;
+  pointer-events: none;
+  opacity: 0;
+
+  transition: 0.1s ease-in-out opacity, color;
+
+  &.country-highlighted {
+    opacity: 0.8;
+  }
+}

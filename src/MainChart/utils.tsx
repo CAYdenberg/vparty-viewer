@@ -1,4 +1,5 @@
 import { createViewboxFromData, Viewbox } from 'hypocube';
+import tinycolor from 'tinycolor2';
 import { PlanarDataPoint } from '../store/selectors';
 
 export const getViewbox = (
@@ -29,4 +30,8 @@ export const getViewbox = (
     .setEdges({ yMax, yMin })
     .zoom(0.85)
     .setEdges({ xMin: baseView.xMin, xMax: baseView.xMax });
+};
+
+export const colorFade = (baseColor: string) => {
+  return tinycolor(baseColor).desaturate(80).setAlpha(0.2).toHslString();
 };

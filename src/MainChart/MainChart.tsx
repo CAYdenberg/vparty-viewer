@@ -9,8 +9,9 @@ import {
 } from 'hypocube';
 import { DataPoint } from './DataPoint';
 import { scaleTime } from 'd3-scale';
-import { getViewbox } from './getViewbox';
+import { getViewbox } from './utils';
 import { TimelineOverlay } from './TimelineOverlay';
+import { Label } from './Label';
 
 interface Props {
   planarData: PlanarDataPoint[];
@@ -60,6 +61,16 @@ export const MainChart: React.FC<Props> = ({
         xAxisLabelPosition: 25,
         yAxisLabelPosition: -30,
       }}
+      htmlLayer={planarData.map((point) => ({
+        position: point.position,
+        render: (
+          <Label
+            point={point}
+            highlighted={highlighted}
+            isFaded={isFaded(point.compoundKey)}
+          />
+        ),
+      }))}
     >
       <YAxis intercept={view.xMin} axisLabel="Populism Index" />
       {planarData.map((point) => (
