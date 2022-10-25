@@ -41,6 +41,7 @@ export const TimelineOverlay: React.FC<Props> = ({
         chartStyle={{
           axisColor: planarData.baseColor,
           xAxisLabelPosition: -10,
+          svgPointerEvents: false,
         }}
       />
       <LineSeries
@@ -52,6 +53,7 @@ export const TimelineOverlay: React.FC<Props> = ({
           dataPointFill: color,
           dataPointSize: 7,
           dataPointSymbol: 'circle',
+          svgPointerEvents: false,
         }}
       />
     </React.Fragment>

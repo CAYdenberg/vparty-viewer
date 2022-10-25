@@ -1,8 +1,11 @@
 import { Action } from './useChartData';
 import update from 'immutability-helper';
+import { BeliefKeyT } from './state';
 
 export const initialDataOk =
-  (data: any): Action =>
+  (
+    data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  ): Action =>
   (init) => {
     const { COUNTRIES, CAN, USA, GBR } = data;
 
@@ -10,13 +13,6 @@ export const initialDataOk =
       initialDataLoad: { $set: 200 },
       data: { $push: [CAN, USA, GBR] },
       countries: { $set: COUNTRIES },
-      apiLoad: {
-        $set: {
-          CAN: 200,
-          USA: 200,
-          GBR: 200,
-        },
-      },
     });
   };
 
@@ -40,7 +36,10 @@ export const reqStart =
   };
 
 export const reqOk =
-  (id: string, data: any): Action =>
+  (
+    id: string,
+    data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  ): Action =>
   (init) => {
     return update(init, {
       apiLoad: (val) => ({
@@ -48,6 +47,9 @@ export const reqOk =
         [id]: 200,
       }),
       data: (val) => [data, ...val],
+      ux: {
+        collapsedCountries: (val) => val.filter((item) => item !== id),
+      },
     });
   };
 
@@ -91,6 +93,32 @@ export const unhighlight = (): Action => (init) => {
   return update(init, {
     ux: {
       highlighted: { $set: '' },
+    },
+  });
+};
+
+export const setYAxis =
+  (yAxis: keyof BeliefKeyT): Action =>
+  (init) => {
+    return update(init, {
+      ux: {
+        yAxis: { $set: yAxis },
+      },
+    });
+  };
+
+export const toggleMobileMenu = (): Action => (init) => {
+  return update(init, {
+    ux: {
+      mobileMenu: (val) => !val,
+    },
+  });
+};
+
+export const closeMobileMenu = (): Action => (init) => {
+  return update(init, {
+    ux: {
+      mobileMenu: { $set: false },
     },
   });
 };

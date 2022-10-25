@@ -2,7 +2,7 @@ import './styles.scss';
 
 import React from 'react';
 import { IconChevronRight } from '../icons';
-import { MenuCountryItem } from '../store/selectors';
+import { colorCache, MenuCountryItem } from '../store/selectors';
 
 interface Props {
   menuData: MenuCountryItem[];
@@ -41,8 +41,13 @@ export const Menu: React.FC<Props> = ({
                   <a
                     onPointerEnter={() => highlight(party.key)}
                     onPointerLeave={() => unhighlight(party.key)}
+                    className="menu-list__party"
                   >
-                    {party.label}
+                    <span>{party.label}</span>
+                    <span
+                      className="menu-list__party-color"
+                      style={{ backgroundColor: colorCache.get(party.key) }}
+                    ></span>
                   </a>
                 </li>
               ))}

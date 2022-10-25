@@ -6,3 +6,7 @@ $family-sans-serif: 'Noto Sans HK', sans-serif;
 $blue: #335eea;
 
 @import '../node_modules/bulma/bulma.sass';
+
+@import './Menu/styles.scss';
+@import './MainChart/styles.scss';
+@import './MobileCountryMenu/styles.scss';

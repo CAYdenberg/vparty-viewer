@@ -1,23 +1,38 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { AddCountryForm } from './AddCountryForm';
+import { ChartControlForm } from './ChartControlForm';
 import { MainChart } from './MainChart';
 import { Menu } from './Menu/Menu';
+import { MobileCountryMenu } from './MobileCountryMenu';
 import { useChartData, selectors as s, actions as a } from './store';
+import { BeliefKeyT, getBeliefLabel } from './store/state';
 
 export const App: React.FC = () => {
   const { state, dispatch, request } = useChartData();
-  console.log(state);
 
-  const chartData = s.getPlanarData('v2xpa_popul')(state);
-  const timeline = s.getTimelineData(
-    'v2xpa_popul',
-    state.ux.highlighted,
-  )(state);
+  const chartData = s.getPlanarData(state);
+  const timeline = s.getTimelineData(state);
   const menuData = s.getMenuData(state);
 
   const toggleCountry = (country: string) => dispatch(a.toggleCountry(country));
   const highlight = (key: string) => dispatch(a.highlight(key));
   const unhighlight = () => dispatch(a.unhighlight());
+  const setYAxis = (next: keyof BeliefKeyT) => dispatch(a.setYAxis(next));
+  const toggleMobileMenu = () => dispatch(a.toggleMobileMenu());
+  const closeMobileMenu = useCallback(() => {
+    dispatch(a.closeMobileMenu());
+  }, [dispatch]);
+  const handleAddCountry = useCallback(
+    (id: string) => {
+      if (!state.data.find((country) => country.id === id)) {
+        request(id);
+      }
+      if (state.ux.collapsedCountries.includes(id)) {
+        dispatch(a.toggleCountry(id));
+      }
+    },
+    [dispatch, request, state],
+  );
 
   return (
     <div className="container">
@@ -51,10 +66,10 @@ export const App: React.FC = () => {
       </div>
 
       <div className="columns mt-4">
-        <aside className="column is-4">
+        <aside className="column is-4 is-hidden-mobile">
           <AddCountryForm
             countries={state.countries}
-            handleAddCountry={request}
+            handleAddCountry={handleAddCountry}
             isLoading={s.isLoading(state)}
           />
 
@@ -67,19 +82,36 @@ export const App: React.FC = () => {
         </aside>
 
         <main className="column">
-          <div className="level">
-            <form>
-              <div className="select">
-                <select>
-                  <option>Populism Index</option>
-                </select>
-              </div>
-            </form>
+          <div className="level is-mobile">
+            <div className="level-left">
+              <ChartControlForm yAxis={state.ux.yAxis} setYAxis={setYAxis} />
+            </div>
+
+            <div className="level-right is-hidden-tablet">
+              <MobileCountryMenu
+                isOpen={state.ux.mobileMenu}
+                toggleOpen={toggleMobileMenu}
+                requestClose={closeMobileMenu}
+                activeCountries={s.activeCountries(state)}
+                handleHideCountry={toggleCountry}
+                addCountryForm={
+                  <AddCountryForm
+                    countries={state.countries}
+                    handleAddCountry={handleAddCountry}
+                    isLoading={s.isLoading(state)}
+                  />
+                }
+              />
+            </div>
           </div>
+
           <div>
             <MainChart
               planarData={chartData}
               highlighted={state.ux.highlighted}
+              yAxisLabel={getBeliefLabel(state.ux.yAxis)}
+              highlight={highlight}
+              unhighlight={unhighlight}
               timelineData={timeline || undefined}
             />
           </div>

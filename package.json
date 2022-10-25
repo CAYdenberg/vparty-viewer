@@ -15,7 +15,6 @@
   "author": "@CAYdenberg",
   "license": "MIT",
   "dependencies": {
-    "@mui/icons-material": "^5.10.6",
     "axios": "^0.27.2",
     "bulma": "^0.9.4",
     "d3-scale": "^4.0.2",

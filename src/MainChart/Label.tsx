@@ -1,5 +1,3 @@
-import './styles.scss';
-
 import React from 'react';
 import { PlanarDataPoint } from '../store/selectors';
 import { colorFade } from './utils';

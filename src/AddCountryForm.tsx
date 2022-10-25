@@ -28,6 +28,7 @@ export const AddCountryForm: React.FC<Props> = ({
     }
 
     handleAddCountry(selectedCountry.id);
+    setInputValue('');
   };
 
   return (

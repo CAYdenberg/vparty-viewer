@@ -8,4 +8,8 @@
   &.country-highlighted {
     opacity: 0.8;
   }
+
+  @include mobile {
+    opacity: 0.8;
+  }
 }

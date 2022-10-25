@@ -1,14 +1,7 @@
 import React from 'react';
-import { colorCache, PlanarDataPoint } from '../store/selectors';
-import {
-  Chart,
-  createViewboxFromData,
-  LineSeries,
-  XAxis,
-  YAxis,
-} from 'hypocube';
+import { PlanarDataPoint } from '../store/selectors';
+import { Chart, YAxis } from 'hypocube';
 import { DataPoint } from './DataPoint';
-import { scaleTime } from 'd3-scale';
 import { getViewbox } from './utils';
 import { TimelineOverlay } from './TimelineOverlay';
 import { Label } from './Label';
@@ -16,12 +9,18 @@ import { Label } from './Label';
 interface Props {
   planarData: PlanarDataPoint[];
   highlighted: string;
+  yAxisLabel: string;
+  highlight: (key: string) => void;
+  unhighlight: (key: string) => void;
   timelineData?: [string, number][];
 }
 
 export const MainChart: React.FC<Props> = ({
   planarData,
   highlighted,
+  yAxisLabel,
+  highlight,
+  unhighlight,
   timelineData,
 }) => {
   const view = getViewbox(planarData, timelineData);
@@ -72,12 +71,14 @@ export const MainChart: React.FC<Props> = ({
         ),
       }))}
     >
-      <YAxis intercept={view.xMin} axisLabel="Populism Index" />
+      <YAxis intercept={view.xMin} axisLabel={yAxisLabel} />
       {planarData.map((point) => (
         <DataPoint
           key={point.compoundKey}
           point={point}
           isFaded={isFaded(point.compoundKey)}
+          highlight={highlight}
+          unhighlight={unhighlight}
         />
       ))}
       <TimelineOverlay

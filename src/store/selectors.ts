@@ -1,7 +1,6 @@
 import { COMMON_PARTY_COLORS, VOTE_SHARE_MIN } from '../config';
-import { BeliefKeyT, State } from './state';
+import { State } from './state';
 import { random as randomColor } from 'tinycolor2';
-import { YAxis } from 'hypocube';
 
 export interface PlanarDataPoint {
   compoundKey: string;
@@ -29,64 +28,61 @@ class ColorCache {
 }
 export const colorCache = new ColorCache();
 
-export const getPlanarData =
-  (yAxis: keyof BeliefKeyT) =>
-  (state: State): PlanarDataPoint[] => {
-    return state.data.reduce((acc, country) => {
-      if (state.ux.collapsedCountries.includes(country.id)) {
-        return acc;
-      }
+export const getPlanarData = (state: State): PlanarDataPoint[] => {
+  return state.data.reduce((acc, country) => {
+    if (state.ux.collapsedCountries.includes(country.id)) {
+      return acc;
+    }
 
-      const lastElection = country.lastElection.date;
-      const extantParties = country.lastElection.voteShare
-        .map((party) => {
-          const compoundKey = `${country.id}:${party.party}`;
-          const partyFullData = country.parties.find(
-            (p) => p.id === party.party,
-          );
-          const currentPartyElection = partyFullData?.elections.find(
-            (e) => e.date === lastElection,
-          );
-          if (!currentPartyElection) return null;
+    const lastElection = country.lastElection.date;
+    const extantParties = country.lastElection.voteShare
+      .map((party) => {
+        const compoundKey = `${country.id}:${party.party}`;
+        const partyFullData = country.parties.find((p) => p.id === party.party);
+        const currentPartyElection = partyFullData?.elections.find(
+          (e) => e.date === lastElection,
+        );
+        if (!currentPartyElection) return null;
 
-          const position = [
-            currentPartyElection.v2pariglef.value,
-            currentPartyElection[yAxis].value,
-          ] as [number, number];
+        const position = [
+          currentPartyElection.v2pariglef.value,
+          currentPartyElection[state.ux.yAxis].value,
+        ] as [number, number];
 
-          const baseColor = colorCache.get(compoundKey);
+        const baseColor = colorCache.get(compoundKey);
 
-          return {
-            compoundKey,
-            position,
-            partyName: partyFullData?.label,
-            voteShare: party.voteShare,
-            baseColor,
-          };
-        })
-        .filter(Boolean) as PlanarDataPoint[];
+        return {
+          compoundKey,
+          position,
+          partyName: partyFullData?.label,
+          voteShare: party.voteShare,
+          baseColor,
+        };
+      })
+      .filter(Boolean) as PlanarDataPoint[];
 
-      return acc.concat(extantParties);
-    }, [] as PlanarDataPoint[]);
-  };
+    return acc.concat(extantParties);
+  }, [] as PlanarDataPoint[]);
+};
 
-export const getTimelineData =
-  (yAxis: keyof BeliefKeyT, compoundId?: string) => (state: State) => {
-    if (!compoundId) return null;
+export const getTimelineData = (state: State) => {
+  const { yAxis, highlighted: compoundId } = state.ux;
 
-    const [countryId, partyId] = compoundId.split(':');
-    if (!partyId) return null;
+  if (!compoundId) return null;
 
-    const country = state.data.find((country) => country.id === countryId);
-    if (!country) return null;
+  const [countryId, partyId] = compoundId.split(':');
+  if (!partyId) return null;
 
-    const party = country.parties.find((party) => party.id === partyId);
-    if (!party) return null;
+  const country = state.data.find((country) => country.id === countryId);
+  if (!country) return null;
 
-    return party.elections.map(
-      (election) => [election.date, election[yAxis].value] as [string, number],
-    );
-  };
+  const party = country.parties.find((party) => party.id === partyId);
+  if (!party) return null;
+
+  return party.elections.map(
+    (election) => [election.date, election[yAxis].value] as [string, number],
+  );
+};
 
 export interface MenuCountryItem {
   label: string;
@@ -122,4 +118,13 @@ export const isLoading = (state: State): boolean => {
     state.initialDataLoad === 'loading' ||
     !!Object.keys(state.apiLoad).find((key) => state.apiLoad[key] === 'loading')
   );
+};
+
+export const activeCountries = (state: State) => {
+  return state.data
+    .map((country) => ({
+      id: country.id,
+      label: country.label,
+    }))
+    .filter((item) => !state.ux.collapsedCountries.includes(item.id));
 };

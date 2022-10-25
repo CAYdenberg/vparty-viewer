@@ -6,13 +6,22 @@ import { colorFade as fade } from './utils';
 interface Props {
   point: PlanarDataPoint;
   isFaded: boolean;
+  highlight: (key: string) => void;
 }
 
-export const DataPoint: React.FC<Props> = ({ point, isFaded }) => {
+export const DataPoint: React.FC<Props> = ({
+  point,
+  isFaded,
+  highlight,
+  unhighlight,
+}) => {
   const color = isFaded ? fade(point.baseColor) : point.baseColor;
 
   return (
-    <Handle onPointerDown={() => console.log(point.compoundKey)}>
+    <Handle
+      onPointerEnter={() => highlight(point.compoundKey)}
+      onPointerLeave={() => unhighlight(point.compoundKey)}
+    >
       <Symbol
         point={point.position}
         fill={color}
