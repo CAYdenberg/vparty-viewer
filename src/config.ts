@@ -4,6 +4,8 @@ export const API_BASE_URL: string = PUB_API_BASE_URL;
 // @ts-ignore
 export const API_KEY: string = PUB_API_KEY;
 
+export const VOTE_SHARE_MIN = 0.05;
+
 export const COMMON_PARTY_COLORS: Record<string, string> = {
   'CAN:NDP': '#f37021',
   'CAN:GPC': '#3d9b35',

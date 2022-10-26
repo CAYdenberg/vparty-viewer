@@ -1,0 +1,29 @@
+.menu-list__country {
+  i {
+    float: right;
+    transition: 0.1s ease-in-out transform;
+  }
+
+  &.is-open {
+    i {
+      transform: rotate(90deg);
+    }
+  }
+
+  & + ul {
+    overflow: hidden;
+    max-height: 100vh;
+    transition: 0.1s ease-in-out max-height;
+  }
+
+  &:not(.is-open) + ul {
+    max-height: 0;
+  }
+}
+
+.menu-list__party-color {
+  display: block;
+  float: right;
+  width: 1em;
+  height: 1em;
+}

@@ -6,7 +6,7 @@ export const BELIEF_KEYS = {
   v2paopresp: 'Political opponents',
   v2paplur: 'Political pluralism',
   v2paminor: 'Minority rights',
-  v2paviol: 'Rejection of politcal violence',
+  v2paviol: 'Rejection of political violence',
   v2paimmig: 'Immigration',
   v2palgbt: 'LGBT social equality',
   v2paculsup: 'Cultural superiority',
@@ -18,6 +18,13 @@ export const BELIEF_KEYS = {
 };
 
 export type BeliefKeyT = typeof BELIEF_KEYS;
+
+export const getBeliefLabel = (key: string) => {
+  if (Object.keys(BELIEF_KEYS).includes(key)) {
+    return BELIEF_KEYS[key as keyof BeliefKeyT];
+  }
+  return '';
+};
 
 type Beliefs = {
   [property in keyof BeliefKeyT]: {
@@ -35,6 +42,8 @@ interface PartyElection extends Beliefs {
 
 export interface State {
   initialDataLoad: number | 'loading' | 'error';
+
+  apiLoad: Record<string, number | 'loading' | 'error'>;
 
   data: Array<{
     id: string;
@@ -57,10 +66,24 @@ export interface State {
     id: string;
     label: string;
   }>;
+
+  ux: {
+    collapsedCountries: string[];
+    highlighted: string;
+    yAxis: keyof BeliefKeyT;
+    mobileMenu: boolean;
+  };
 }
 
 export const getInitialState = (): State => ({
   initialDataLoad: 'loading',
+  apiLoad: {},
   data: [],
   countries: [],
+  ux: {
+    collapsedCountries: [],
+    highlighted: '',
+    yAxis: 'v2xpa_popul',
+    mobileMenu: false,
+  },
 });

@@ -1,15 +1,53 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { AddCountryForm } from './AddCountryForm';
+import { ChartControlForm } from './ChartControlForm';
 import { MainChart } from './MainChart';
 import { Menu } from './Menu/Menu';
-import { useChartData } from './store';
-import { getChartData, getMenuData } from './store/selectors';
+import { MobileCountryMenu } from './MobileCountryMenu';
+import { useChartData, selectors as s, actions as a } from './store';
+import { BeliefKeyT, getBeliefLabel } from './store/state';
 
 export const App: React.FC = () => {
-  const { state, dispatch } = useChartData();
-  console.log(state);
+  const { state, dispatch, request } = useChartData();
 
-  const chartData = getChartData('v2xpa_popul')(state);
-  const menuData = getMenuData(state);
+  const chartData = s.getPlanarData(state);
+  const timeline = s.getTimelineData(state);
+  const menuData = s.getMenuData(state);
+
+  const toggleCountry = (country: string) => dispatch(a.toggleCountry(country));
+  const highlight = (key: string) => dispatch(a.highlight(key));
+  const setYAxis = (next: keyof BeliefKeyT) => dispatch(a.setYAxis(next));
+  const toggleMobileMenu = () => dispatch(a.toggleMobileMenu());
+
+  const unhighlight = useCallback(() => {
+    dispatch(a.unhighlight());
+  }, [dispatch]);
+
+  const closeMobileMenu = useCallback(() => {
+    dispatch(a.closeMobileMenu());
+  }, [dispatch]);
+  const handleAddCountry = useCallback(
+    (id: string) => {
+      if (!state.data.find((country) => country.id === id)) {
+        request(id);
+      }
+      if (state.ux.collapsedCountries.includes(id)) {
+        dispatch(a.toggleCountry(id));
+      }
+    },
+    [dispatch, request, state],
+  );
+
+  const isTimeline = !!timeline;
+
+  useEffect(() => {
+    if (isTimeline) {
+      document.addEventListener('pointerdown', unhighlight);
+      return () => {
+        document.removeEventListener('pointerdown', unhighlight);
+      };
+    }
+  }, [isTimeline, unhighlight]);
 
   return (
     <div className="container">
@@ -43,37 +81,53 @@ export const App: React.FC = () => {
       </div>
 
       <div className="columns mt-4">
-        <aside className="column is-4">
-          <form className="mb-3">
-            <div className="field has-addons">
-              <div className="control is-expanded">
-                <input
-                  className="input"
-                  type="text"
-                  placeholder="Add a country"
-                />
-              </div>
-              <div className="control">
-                <a className="button is-info">Add</a>
-              </div>
-            </div>
-          </form>
+        <aside className="column is-4 is-hidden-mobile">
+          <AddCountryForm
+            countries={state.countries}
+            handleAddCountry={handleAddCountry}
+            isLoading={s.isLoading(state)}
+          />
 
-          <Menu menuData={menuData} />
+          <Menu
+            menuData={menuData}
+            toggleCountry={toggleCountry}
+            highlight={highlight}
+            unhighlight={unhighlight}
+          />
         </aside>
 
         <main className="column">
-          <div className="level">
-            <form>
-              <div className="select">
-                <select>
-                  <option>Populism Index</option>
-                </select>
-              </div>
-            </form>
+          <div className="level is-mobile">
+            <div className="level-left">
+              <ChartControlForm yAxis={state.ux.yAxis} setYAxis={setYAxis} />
+            </div>
+
+            <div className="level-right is-hidden-tablet">
+              <MobileCountryMenu
+                isOpen={state.ux.mobileMenu}
+                toggleOpen={toggleMobileMenu}
+                requestClose={closeMobileMenu}
+                activeCountries={s.activeCountries(state)}
+                handleHideCountry={toggleCountry}
+                addCountryForm={
+                  <AddCountryForm
+                    countries={state.countries}
+                    handleAddCountry={handleAddCountry}
+                    isLoading={s.isLoading(state)}
+                  />
+                }
+              />
+            </div>
           </div>
+
           <div>
-            <MainChart chartData={chartData} />
+            <MainChart
+              planarData={chartData}
+              highlighted={state.ux.highlighted}
+              yAxisLabel={getBeliefLabel(state.ux.yAxis)}
+              highlight={highlight}
+              timelineData={timeline || undefined}
+            />
           </div>
         </main>
       </div>
