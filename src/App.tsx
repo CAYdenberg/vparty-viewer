@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { AddCountryForm } from './AddCountryForm';
 import { ChartControlForm } from './ChartControlForm';
 import { MainChart } from './MainChart';
@@ -40,17 +40,21 @@ export const App: React.FC = () => {
 
   const isTimeline = !!timeline;
 
+  const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (isTimeline) {
-      document.addEventListener('pointerdown', unhighlight);
+    if (isTimeline && containerRef.current) {
+      const el = containerRef.current;
+      el.addEventListener('pointerdown', unhighlight);
       return () => {
-        document.removeEventListener('pointerdown', unhighlight);
+        if (el) {
+          el.removeEventListener('pointerdown', unhighlight);
+        }
       };
     }
   }, [isTimeline, unhighlight]);
 
   return (
-    <div className="container">
+    <div className="container" ref={containerRef}>
       <div className="level is-center mt-4 mb-4">
         <div className="level-item has-text-centered">
           <h1 className="is-size-1">V-Party Data Explorer</h1>
