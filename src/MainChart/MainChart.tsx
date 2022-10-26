@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PlanarDataPoint } from '../store/selectors';
 import { Chart, YAxis } from 'hypocube';
 import { DataPoint } from './DataPoint';
@@ -11,7 +11,6 @@ interface Props {
   highlighted: string;
   yAxisLabel: string;
   highlight: (key: string) => void;
-  unhighlight: (key: string) => void;
   timelineData?: [string, number][];
 }
 
@@ -20,9 +19,10 @@ export const MainChart: React.FC<Props> = ({
   highlighted,
   yAxisLabel,
   highlight,
-  unhighlight,
   timelineData,
 }) => {
+  const [hovered, setHovered] = useState('');
+
   const view = getViewbox(planarData, timelineData);
   if (!view) {
     return null;
@@ -50,43 +50,46 @@ export const MainChart: React.FC<Props> = ({
   };
 
   return (
-    <Chart
-      // isCanvas={true}
-      view={view}
-      gutter={[0, 0, 30, 35]}
-      maxWidth={912}
-      height={400}
-      chartStyle={{
-        xAxisLabelPosition: 25,
-        yAxisLabelPosition: -30,
-      }}
-      htmlLayer={planarData.map((point) => ({
-        position: point.position,
-        render: (
-          <Label
-            point={point}
-            highlighted={highlighted}
-            isFaded={isFaded(point.compoundKey)}
-          />
-        ),
-      }))}
-    >
-      <YAxis intercept={view.xMin} axisLabel={yAxisLabel} />
-      {planarData.map((point) => (
-        <DataPoint
-          key={point.compoundKey}
-          point={point}
-          isFaded={isFaded(point.compoundKey)}
-          highlight={highlight}
-          unhighlight={unhighlight}
-        />
-      ))}
-      <TimelineOverlay
-        timelineData={timelineData}
-        planarData={highlightedData}
-        compoundKey={highlighted}
+    <div style={{ cursor: hovered ? 'pointer' : 'initial' }}>
+      <Chart
+        // isCanvas={true}
         view={view}
-      />
-    </Chart>
+        gutter={[0, 0, 30, 35]}
+        maxWidth={912}
+        height={400}
+        chartStyle={{
+          xAxisLabelPosition: 25,
+          yAxisLabelPosition: -30,
+        }}
+        htmlLayer={planarData.map((point) => ({
+          position: point.position,
+          render: (
+            <Label
+              point={point}
+              highlighted={highlighted}
+              isFaded={isFaded(point.compoundKey)}
+            />
+          ),
+        }))}
+      >
+        <YAxis intercept={view.xMin} axisLabel={yAxisLabel} />
+        {planarData.map((point) => (
+          <DataPoint
+            key={point.compoundKey}
+            point={point}
+            isFaded={isFaded(point.compoundKey)}
+            highlight={highlight}
+            isHovered={hovered === point.compoundKey}
+            setHovered={setHovered}
+          />
+        ))}
+        <TimelineOverlay
+          timelineData={timelineData}
+          planarData={highlightedData}
+          compoundKey={highlighted}
+          view={view}
+        />
+      </Chart>
+    </div>
   );
 };

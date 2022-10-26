@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { AddCountryForm } from './AddCountryForm';
 import { ChartControlForm } from './ChartControlForm';
 import { MainChart } from './MainChart';
@@ -16,9 +16,13 @@ export const App: React.FC = () => {
 
   const toggleCountry = (country: string) => dispatch(a.toggleCountry(country));
   const highlight = (key: string) => dispatch(a.highlight(key));
-  const unhighlight = () => dispatch(a.unhighlight());
   const setYAxis = (next: keyof BeliefKeyT) => dispatch(a.setYAxis(next));
   const toggleMobileMenu = () => dispatch(a.toggleMobileMenu());
+
+  const unhighlight = useCallback(() => {
+    dispatch(a.unhighlight());
+  }, [dispatch]);
+
   const closeMobileMenu = useCallback(() => {
     dispatch(a.closeMobileMenu());
   }, [dispatch]);
@@ -33,6 +37,17 @@ export const App: React.FC = () => {
     },
     [dispatch, request, state],
   );
+
+  const isTimeline = !!timeline;
+
+  useEffect(() => {
+    if (isTimeline) {
+      document.addEventListener('pointerdown', unhighlight);
+      return () => {
+        document.removeEventListener('pointerdown', unhighlight);
+      };
+    }
+  }, [isTimeline, unhighlight]);
 
   return (
     <div className="container">
@@ -111,7 +126,6 @@ export const App: React.FC = () => {
               highlighted={state.ux.highlighted}
               yAxisLabel={getBeliefLabel(state.ux.yAxis)}
               highlight={highlight}
-              unhighlight={unhighlight}
               timelineData={timeline || undefined}
             />
           </div>

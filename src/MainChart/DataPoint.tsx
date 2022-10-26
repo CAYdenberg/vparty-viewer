@@ -7,25 +7,30 @@ interface Props {
   point: PlanarDataPoint;
   isFaded: boolean;
   highlight: (key: string) => void;
+  isHovered: boolean;
+  setHovered: (compoundKey: string) => void;
 }
 
 export const DataPoint: React.FC<Props> = ({
   point,
   isFaded,
   highlight,
-  unhighlight,
+  isHovered,
+  setHovered,
 }) => {
   const color = isFaded ? fade(point.baseColor) : point.baseColor;
 
   return (
     <Handle
-      onPointerEnter={() => highlight(point.compoundKey)}
-      onPointerLeave={() => unhighlight(point.compoundKey)}
+      onPointerDown={() => highlight(point.compoundKey)}
+      onPointerEnter={() => setHovered(point.compoundKey)}
+      onPointerLeave={() => setHovered('')}
     >
       <Symbol
         point={point.position}
         fill={color}
-        strokeWidth={0}
+        strokeWidth={isHovered ? 6 : 0}
+        stroke="#ccc"
         size={point.voteShare * 5}
       />
     </Handle>
