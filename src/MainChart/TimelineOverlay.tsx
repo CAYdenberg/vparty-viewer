@@ -8,6 +8,7 @@ interface Props {
   planarData?: PlanarDataPoint;
   compoundKey: string;
   view: Viewbox;
+  opacity: number;
 }
 
 const getXScaler = scaleTime().domain([new Date(1970, 0, 0), Date.now()]);
@@ -19,6 +20,7 @@ export const TimelineOverlay: React.FC<Props> = ({
   compoundKey,
   planarData,
   view,
+  opacity,
 }) => {
   if (!timelineData || !planarData) {
     return <XAxis intercept={view.yMin} axisLabel="Economic left-right" />;
@@ -54,6 +56,7 @@ export const TimelineOverlay: React.FC<Props> = ({
           dataPointSize: 7,
           dataPointSymbol: 'circle',
           svgPointerEvents: false,
+          seriesOpacity: opacity,
         }}
       />
     </React.Fragment>

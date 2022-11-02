@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PlanarDataPoint } from '../store/selectors';
-import { Chart, YAxis } from 'hypocube';
+import { Chart, Point, createUseInterpolatedEffect, YAxis } from 'hypocube';
 import { DataPoint } from './DataPoint';
 import { getViewbox } from './utils';
 import { TimelineOverlay } from './TimelineOverlay';
@@ -12,21 +12,107 @@ interface Props {
   yAxisLabel: string;
   highlight: (key: string) => void;
   timelineData?: [string, number][];
+  overlayOpacity: number;
 }
 
-export const MainChart: React.FC<Props> = ({
+const interpolateData = (prev: PlanarDataPoint[], next: PlanarDataPoint[]) => {
+  return (progress: number): PlanarDataPoint[] => {
+    const merged = next.map((nextPoint) => {
+      const prevPoint = prev.find(
+        (p) => p.compoundKey === nextPoint.compoundKey,
+      );
+      if (!prevPoint) {
+        return nextPoint;
+      }
+      const dX = nextPoint.position[0] - prevPoint.position[0];
+      const dY = nextPoint.position[1] - prevPoint.position[1];
+      const position: Point = [
+        prevPoint.position[0] + dX * progress,
+        prevPoint.position[1] + dY * progress,
+      ];
+      return {
+        ...nextPoint,
+        position,
+      };
+    });
+
+    return merged;
+  };
+};
+
+const useInterpolatedEffect = createUseInterpolatedEffect<Props>(
+  (prev, next) => {
+    if (prev.yAxisLabel !== next.yAxisLabel) {
+      return (progress: number) => ({
+        ...next,
+        planarData: interpolateData(prev.planarData, next.planarData)(progress),
+      });
+    }
+    if (prev.highlighted && !next.highlighted) {
+      return (progress: number) => ({
+        ...next,
+        overlayOpacity: 1 - progress,
+        timelineData: progress < 1 ? prev.timelineData : undefined,
+      });
+    }
+    if (prev.highlighted !== next.highlighted) {
+      return (progress: number) => ({
+        ...next,
+        overlayOpacity: progress,
+      });
+    }
+    return next;
+  },
+);
+
+export const MainChart: React.FC<Props> = (props) => {
+  const [
+    { planarData, yAxisLabel, overlayOpacity, timelineData },
+    isAnimating,
+  ] = useInterpolatedEffect(props);
+
+  return (
+    <AnimatedChart
+      {...props}
+      planarData={planarData}
+      timelineData={timelineData}
+      yAxisLabel={yAxisLabel}
+      isAnimating={isAnimating}
+      overlayOpacity={overlayOpacity}
+    />
+  );
+};
+
+MainChart.defaultProps = {
+  overlayOpacity: 1,
+};
+
+interface MainChartAnimatedProps extends Props {
+  overlayOpacity: number;
+  isAnimating: boolean;
+}
+
+const AnimatedChart: React.FC<MainChartAnimatedProps> = ({
   planarData,
   highlighted,
   yAxisLabel,
   highlight,
   timelineData,
+  isAnimating,
+  overlayOpacity,
 }) => {
   const [hovered, setHovered] = useState('');
 
-  const view = getViewbox(planarData, timelineData);
-  if (!view) {
+  const basicView = getViewbox(planarData, timelineData);
+
+  if (!basicView) {
     return null;
   }
+
+  const view = isAnimating
+    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      getViewbox(planarData)!.interpolate(basicView, overlayOpacity)
+    : basicView;
 
   const highlightedData = planarData.find(
     (point) => point.compoundKey === highlighted,
@@ -52,7 +138,7 @@ export const MainChart: React.FC<Props> = ({
   return (
     <div style={{ cursor: hovered ? 'pointer' : 'initial' }}>
       <Chart
-        // isCanvas={true}
+        isCanvas={isAnimating}
         view={view}
         gutter={[0, 0, 30, 35]}
         maxWidth={912}
@@ -61,16 +147,20 @@ export const MainChart: React.FC<Props> = ({
           xAxisLabelPosition: 25,
           yAxisLabelPosition: -30,
         }}
-        htmlLayer={planarData.map((point) => ({
-          position: point.position,
-          render: (
-            <Label
-              point={point}
-              highlighted={highlighted}
-              isFaded={isFaded(point.compoundKey)}
-            />
-          ),
-        }))}
+        htmlLayer={
+          false
+            ? undefined
+            : planarData.map((point) => ({
+                position: point.position,
+                render: (
+                  <Label
+                    point={point}
+                    highlighted={highlighted}
+                    isFaded={isFaded(point.compoundKey)}
+                  />
+                ),
+              }))
+        }
       >
         <YAxis intercept={view.xMin} axisLabel={yAxisLabel} />
         {planarData.map((point) => (
@@ -88,6 +178,7 @@ export const MainChart: React.FC<Props> = ({
           planarData={highlightedData}
           compoundKey={highlighted}
           view={view}
+          opacity={overlayOpacity}
         />
       </Chart>
     </div>

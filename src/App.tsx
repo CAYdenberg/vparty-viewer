@@ -131,6 +131,7 @@ export const App: React.FC = () => {
               yAxisLabel={getBeliefLabel(state.ux.yAxis)}
               highlight={highlight}
               timelineData={timeline || undefined}
+              overlayOpacity={1}
             />
           </div>
         </main>
