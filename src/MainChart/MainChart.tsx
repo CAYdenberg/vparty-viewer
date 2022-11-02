@@ -110,7 +110,8 @@ const AnimatedChart: React.FC<MainChartAnimatedProps> = ({
   }
 
   const view = isAnimating
-    ? getViewbox(planarData)!.interpolate(basicView, overlayOpacity)
+    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      getViewbox(planarData)!.interpolate(basicView, overlayOpacity)
     : basicView;
 
   const highlightedData = planarData.find(

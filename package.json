@@ -20,6 +20,7 @@
     "d3-ease": "^3.0.1",
     "d3-scale": "^4.0.2",
     "date-fns": "^2.29.3",
+    "hypocube": "^0.0.17",
     "immutability-helper": "^3.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
