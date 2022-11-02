@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { PlanarDataPoint } from '../store/selectors';
-import { Chart, Point, createUseInterpolatedEffect, YAxis } from 'hypocube';
+import {
+  Chart,
+  Point,
+  createUseInterpolatedEffect,
+  YAxis,
+  list,
+  Grid,
+} from 'hypocube';
 import { DataPoint } from './DataPoint';
 import { getViewbox } from './utils';
 import { TimelineOverlay } from './TimelineOverlay';
@@ -14,6 +21,9 @@ interface Props {
   timelineData?: [string, number][];
   overlayOpacity: number;
 }
+
+const GRID = list(15, (i) => i - 7);
+const GRID_DEC = list(10, (i) => i * 0.1);
 
 const interpolateData = (prev: PlanarDataPoint[], next: PlanarDataPoint[]) => {
   return (progress: number): PlanarDataPoint[] => {
@@ -146,6 +156,7 @@ const AnimatedChart: React.FC<MainChartAnimatedProps> = ({
         chartStyle={{
           xAxisLabelPosition: 25,
           yAxisLabelPosition: -30,
+          htmlLayerPointerEvents: false,
         }}
         htmlLayer={
           false
@@ -163,6 +174,14 @@ const AnimatedChart: React.FC<MainChartAnimatedProps> = ({
         }
       >
         <YAxis intercept={view.xMin} axisLabel={yAxisLabel} />
+        <Grid
+          xLines={GRID}
+          yLines={
+            ['Populism Index', 'Anti-Pluralism Index'].includes(yAxisLabel)
+              ? GRID_DEC
+              : GRID
+          }
+        />
         {planarData.map((point) => (
           <DataPoint
             key={point.compoundKey}
