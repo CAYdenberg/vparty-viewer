@@ -91,7 +91,11 @@ export const App: React.FC = () => {
           the capacity to do this for all countries - others are chosen
           randomly). Data from other countries can be loaded using the "Add a
           country" search below. If you spot problems or have suggestions please
-          open an issue on the GitHub repo.
+          open an{' '}
+          <a href="https://github.com/CAYdenberg/vparty-viewer/issues">
+            issue on the GitHub repo
+          </a>
+          .
         </p>
       </div>
 
