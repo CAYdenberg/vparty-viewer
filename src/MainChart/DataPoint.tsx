@@ -31,7 +31,7 @@ export const DataPoint: React.FC<Props> = ({
         fill={color}
         strokeWidth={isHovered ? 6 : 0}
         stroke="#ccc"
-        size={point.voteShare * 5}
+        size={Math.sqrt(point.voteShare) * 25}
       />
     </Handle>
   );

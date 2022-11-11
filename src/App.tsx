@@ -4,6 +4,7 @@ import { ChartControlForm } from './ChartControlForm';
 import { MainChart } from './MainChart';
 import { Menu } from './Menu/Menu';
 import { MobileCountryMenu } from './MobileCountryMenu';
+import { QuestionDescription } from './QuestionDescription';
 import { useChartData, selectors as s, actions as a } from './store';
 import { BeliefKeyT, getBeliefLabel } from './store/state';
 
@@ -62,25 +63,35 @@ export const App: React.FC = () => {
       </div>
       <div className="content mt-4 mb-4">
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus at
-          tellus at augue dapibus ullamcorper. Nunc ut mattis mauris. Mauris
-          tincidunt sodales interdum. Sed id posuere ipsum, in ullamcorper
-          velit. Proin tristique id mi vitae rhoncus. Suspendisse ex lorem,
-          mollis eu dui nec, viverra pulvinar justo. Donec eget turpis id augue
-          sodales placerat. Ut vitae sapien convallis, pretium risus sed,
-          aliquam leo.
+          This page presents a data explorer for the{' '}
+          <a href="https://www.v-dem.net/data/v-party-dataset/">
+            V-Party Dataset
+          </a>{' '}
+          comparing policy positions of various political parties between
+          countries. In the chart below, each political party's position on a
+          traditional economic left-right scale is plotted on the x-axis, and
+          compared with different policy positions on the y-axis. The area of
+          each data point is proportional to the party's vote share in the last
+          election for which data are available. Highlighting any party overlays
+          a chart showing how that party's views on the selected issue have
+          changed over time. Detailed descriptions of methodology can be found
+          in the{' '}
+          <a href="https://www.v-dem.net/documents/8/vparty_briefing.pdf">
+            original policy briefing.
+          </a>
         </p>
         <p>
-          Quisque eu tellus justo. Aenean felis metus, faucibus vel accumsan
-          eget, volutpat id ex. Sed porta ex in porta ultricies. Pellentesque
-          faucibus, elit vel luctus efficitur, ligula sapien rutrum ligula, eu
-          dictum augue tellus porttitor lacus. Vestibulum dignissim, risus at
-          posuere posuere, ipsum nisl tempus dui, sed condimentum dolor nisi
-          facilisis nunc. Etiam maximus aliquet nunc. Nullam gravida malesuada
-          posuere. Phasellus consectetur ut tellus sit amet tempor. Nunc
-          suscipit mauris sit amet arcu sollicitudin dignissim eu eu dui. Nunc
-          porttitor erat in magna pretium volutpat. Nulla semper libero in orci
-          vulputate, vitae aliquam massa dapibus.
+          <em>Disclosure:</em> I was not involved with collecting this data or
+          producing the dataset, nor do I have any formal training in politcal
+          science. <a href="https://caydenberg.io">My interests</a> lie in
+          finding interesting ways to present data interactively. The
+          countries/parties displayed by default reflect my biases with respect
+          to country of origin (Canada) and its closest peer nations. (I have
+          also hard-coded the traditional colours for those parties, but lack
+          the capacity to do this for all countries - others are chosen
+          randomly). Data from other countries can be loaded using the "Add a
+          country" search below. If you spot problems or have suggestions please
+          open an issue on the GitHub repo.
         </p>
       </div>
 
@@ -123,6 +134,8 @@ export const App: React.FC = () => {
               />
             </div>
           </div>
+
+          <QuestionDescription belief={state.ux.yAxis} />
 
           <div>
             <MainChart
