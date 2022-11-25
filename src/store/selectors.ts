@@ -1,6 +1,12 @@
-import { COMMON_PARTY_COLORS, VOTE_SHARE_MIN } from '../config';
+import {
+  COMMON_PARTY_COLORS,
+  LEFT_COLOR_ENDPOINT,
+  RIGHT_COLOR_ENDPOINT,
+  VOTE_SHARE_MIN,
+} from '../config';
 import { State } from './state';
 import { random as randomColor } from 'tinycolor2';
+import colorInterpolate from 'color-interpolate';
 
 export interface PlanarDataPoint {
   compoundKey: string;
@@ -10,6 +16,11 @@ export interface PlanarDataPoint {
   baseColor: string;
 }
 
+const interpolator = colorInterpolate([
+  LEFT_COLOR_ENDPOINT,
+  RIGHT_COLOR_ENDPOINT,
+]);
+
 class ColorCache {
   private colors: Record<string, string>;
 
@@ -17,12 +28,17 @@ class ColorCache {
     this.colors = {};
   }
 
-  public get(id: string) {
+  public get(id: string, pariglef?: number) {
     if (this.colors[id]) {
       return this.colors[id];
     }
 
-    this.colors[id] = COMMON_PARTY_COLORS[id] || randomColor().toHslString();
+    this.colors[id] =
+      COMMON_PARTY_COLORS[id] ||
+      (typeof pariglef === 'number'
+        ? interpolator(pariglef)
+        : randomColor().toHslString());
+
     return this.colors[id];
   }
 }
@@ -49,7 +65,10 @@ export const getPlanarData = (state: State): PlanarDataPoint[] => {
           currentPartyElection[state.ux.yAxis].value,
         ] as [number, number];
 
-        const baseColor = colorCache.get(compoundKey);
+        const baseColor = colorCache.get(
+          compoundKey,
+          currentPartyElection.v2pariglef.value,
+        );
 
         return {
           compoundKey,

@@ -19,3 +19,6 @@ export const COMMON_PARTY_COLORS: Record<string, string> = {
   'GBR:Lab': '#E4003B',
   'GBR:Con': '#0087DC',
 };
+
+export const LEFT_COLOR_ENDPOINT = 'hsl(240, 50%, 60%)';
+export const RIGHT_COLOR_ENDPOINT = 'hsl(358, 50%, 60%)';

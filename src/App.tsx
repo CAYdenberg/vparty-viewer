@@ -88,10 +88,10 @@ export const App: React.FC = () => {
           countries/parties displayed by default reflect my biases with respect
           to country of origin (Canada) and its closest peer nations. (I have
           also hard-coded the traditional colours for those parties, but lack
-          the capacity to do this for all countries - others are chosen
-          randomly). Data from other countries can be loaded using the "Add a
-          country" search below. If you spot problems or have suggestions please
-          open an{' '}
+          the capacity to do this for all countries - others are scaled based on
+          their Economic left-right position). Data from other countries can be
+          loaded using the "Add a country" search below. If you spot problems or
+          have suggestions please open an{' '}
           <a href="https://github.com/CAYdenberg/vparty-viewer/issues">
             issue on the GitHub repo
           </a>
