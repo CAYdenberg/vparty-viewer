@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { PlanarDataPoint } from '../store/selectors';
 import {
   Chart,
@@ -58,13 +58,6 @@ const useInterpolatedEffect = createUseInterpolatedEffect<Props>(
         planarData: interpolateData(prev.planarData, next.planarData)(progress),
       });
     }
-    if (prev.highlighted && !next.highlighted) {
-      return (progress: number) => ({
-        ...next,
-        overlayOpacity: 1 - progress,
-        timelineData: progress < 1 ? prev.timelineData : undefined,
-      });
-    }
     if (prev.highlighted !== next.highlighted) {
       return (progress: number) => ({
         ...next,
@@ -114,15 +107,20 @@ const AnimatedChart: React.FC<MainChartAnimatedProps> = ({
   const [hovered, setHovered] = useState('');
 
   const basicView = getViewbox(planarData, timelineData);
+  const lastStableView = useRef(basicView);
 
   if (!basicView) {
     return null;
   }
 
-  const view = isAnimating
-    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      getViewbox(planarData)!.interpolate(basicView, overlayOpacity)
-    : basicView;
+  const view =
+    isAnimating && lastStableView.current
+      ? lastStableView.current.interpolate(basicView, overlayOpacity)
+      : basicView;
+
+  if (!isAnimating) {
+    lastStableView.current = basicView;
+  }
 
   const highlightedData = planarData.find(
     (point) => point.compoundKey === highlighted,
